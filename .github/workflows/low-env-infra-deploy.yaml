@@ -11,6 +11,9 @@ on:
 
 env:
   working-dir: './infra/terraform'
+  TF_environment: "test"
+  TF_region: ${{ secrets.TF_REGION }}
+  TF_appname: "microservice-store-demo"
 
 jobs:
   run-trivy-scanner:
@@ -62,10 +65,6 @@ jobs:
           -backend-config="key=${{ secrets.TF_STATE_KEY }}" \
           -backend-config="region=${{ secrets.TF_REGION }}"
       working-directory: ${{ env.working-dir }}
-    - run: ls -lah && terraform plan
+    - run: terraform plan -input=false
       working-directory: ${{ env.working-dir }}
-      env:
-        TF_region : "us-west-2"
-        TF_appname : "microservice-store-demo"
-        TF_environment : "test"
 
