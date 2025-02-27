@@ -24,7 +24,7 @@ jobs:
       contents: read
       security-events: write
     steps:
-      - name: Checkout https://github.com/${{ github.repository }}@${{ github.ref }}
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
           persist-credentials: false
@@ -33,11 +33,10 @@ jobs:
         uses: aquasecurity/trivy-action@0.28.0
         with:
           scan-type: 'config'
-          scan-ref: ${{ env.working-dir }}
+          scan-ref: ${{ env.WORKING_DIR }}
           hide-progress: true
           format: 'sarif'
           output: 'trivy-terraform-results.sarif'
-          exit-code: '1'
           ignore-unfixed: true
           severity: 'CRITICAL,HIGH'
 
@@ -59,16 +58,29 @@ jobs:
       with:
         persist-credentials: false
     - uses: hashicorp/setup-terraform@v3
-    - run: |
+
+    - name: Terraform Init
+      run: |
         terraform init \
           -backend-config="bucket=${{ secrets.TF_BUCKET }}" \
           -backend-config="key=${{ secrets.TF_STATE_KEY }}" \
-          -backend-config="region=${{ secrets.TF_REGION }}"
-      working-directory: ${{ env.working-dir }}
-    - run: |
-        terraform plan \
-          -var "environment=${{ env.TF_environment }}" \
-          -var "region=${{ env.TF_region }}" \
-          -var "appname=${{ env.TF_appname }}"
-      working-directory: ${{ env.working-dir }}
+          -backend-config="region=${{ env.TF_REGION }}"
+      working-directory: ${{ env.WORKING_DIR }}
 
+    - name: Terraform Plan
+      id: plan
+      run: |
+        terraform plan -detailed-exitcode \
+          -var "environment=${{ env.TF_ENVIRONMENT }}" \
+          -var "region=${{ env.TF_REGION }}" \
+          -var "appname=${{ env.TF_APPNAME }}"
+      working-directory: ${{ env.WORKING_DIR }}
+
+    - name: Terraform Apply
+      if: steps.plan.outputs.exitcode == 2  # Só aplica se houver mudanças
+      run: |
+        terraform apply -auto-approve \
+          -var "environment=${{ env.TF_ENVIRONMENT }}" \
+          -var "region=${{ env.TF_REGION }}" \
+          -var "appname=${{ env.TF_APPNAME }}"
+      working-directory: ${{ env.WORKING_DIR }}
