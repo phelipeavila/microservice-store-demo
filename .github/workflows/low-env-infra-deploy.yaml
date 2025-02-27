@@ -16,8 +16,8 @@ env:
   TF_APPNAME: "microservice-store-demo"
 
 jobs:
-  run-trivy-scanner:
-    if: false
+  security-scan:
+    name: "Security Scan: Trivy IaC Analysis"
     runs-on: ubuntu-latest
     permissions:
       actions: read
@@ -46,9 +46,10 @@ jobs:
           sarif_file: 'trivy-terraform-results.sarif'
           category: terraform-analysis-tool
 
-  create-low-env-infra:
+  deploy-infra:
+    if: false
+    name: "Provision Low Environment Infrastructure"
     runs-on: ubuntu-latest
- 
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -67,7 +68,7 @@ jobs:
           -backend-config="region=${{ env.TF_REGION }}"
       working-directory: ${{ env.WORKING_DIR }}
 
-    - name: Terraform Plan
+    - name: Generate Terraform Plan
       id: plan
       run: |
         terraform plan -detailed-exitcode \
@@ -76,8 +77,8 @@ jobs:
           -var "appname=${{ env.TF_APPNAME }}"
       working-directory: ${{ env.WORKING_DIR }}
 
-    - name: Terraform Apply
-      if: steps.plan.outputs.exitcode == 2  # Só aplica se houver mudanças
+    - name: Apply Terraform Changes
+      if: steps.plan.outputs.exitcode == 2  # applies only if there is some changes
       run: |
         terraform apply -auto-approve \
           -var "environment=${{ env.TF_ENVIRONMENT }}" \
