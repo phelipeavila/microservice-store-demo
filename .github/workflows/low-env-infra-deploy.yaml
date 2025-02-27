@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 env:
-  working-dir: './infra/terraform'
+  WORKING_DIR: './infra/terraform'
   TF_environment: "test"
   TF_region: ${{ secrets.TF_REGION }}
   TF_appname: "microservice-store-demo"
@@ -70,7 +70,7 @@ jobs:
     - name: Terraform Plan
       id: plan
       run: |
-        terraform plan \
+        terraform plan -detailed-exitcode \
           -var "environment=${{ env.TF_ENVIRONMENT }}" \
           -var "region=${{ env.TF_REGION }}" \
           -var "appname=${{ env.TF_APPNAME }}"
