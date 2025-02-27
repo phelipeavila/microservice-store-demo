@@ -46,9 +46,7 @@ jobs:
 
   create-low-env-infra:
     runs-on: ubuntu-latest
-    # defaults:
-    #   run:
-        
+ 
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -64,5 +62,10 @@ jobs:
           -backend-config="key=${{ secrets.TF_STATE_KEY }}" \
           -backend-config="region=${{ secrets.TF_REGION }}"
       working-directory: ${{ env.working-dir }}
-    - run: terraform plan
+    - run: ls -lah && terraform plan
+      working-directory: ${{ env.working-dir }}
+      env:
+        TF_region : "us-west-2"
+        TF_appname : "microservice-store-demo"
+        TF_environment : "test"
 
