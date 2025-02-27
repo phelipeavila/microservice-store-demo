@@ -57,9 +57,9 @@ jobs:
             '{bucket: $bucket, key: $key, region: $region}')
       
           echo "TF_BACKEND=$TF_BACKEND" >> $GITHUB_ENV
-      shell: bash
     - uses: hashicorp/setup-terraform@v3
     - run: terraform init -backend-config=$TF_BACKEND
       working-directory: "infra/terraform/"
+      shell: bash
     - run: terraform plan
       working-directory: "infra/terraform/"
