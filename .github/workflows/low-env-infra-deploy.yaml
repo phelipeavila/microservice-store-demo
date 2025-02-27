@@ -57,18 +57,12 @@ jobs:
       uses: actions/checkout@v4
       with:
         persist-credentials: false
-    - name: Criar map com variaveis backend
-      run: |
-          pwd && ls -lah
-          TF_BACKEND=$(jq -c -n \
-            --arg bucket "${{ secrets.TF_BUCKET }}" \
-            --arg key "${{ secrets.TF_STATE_KEY }}" \
-            --arg region "${{ secrets.TF_REGION }}" \
-            '{bucket: $bucket, key: $key, region: $region}')
-
-          echo "TF_BACKEND=$TF_BACKEND" >> $GITHUB_ENV
     - uses: hashicorp/setup-terraform@v3
-    - run: terraform init -backend-config=$TF_BACKEND
+    - run: |
+        terraform init \
+          -backend-config="bucket=${{ secrets.TF_BUCKET }}" \
+          -backend-config="key=${{ secrets.TF_STATE_KEY }}" \
+          -backend-config="region=${{ secrets.TF_REGION }}"
       working-directory: ${{ env.working-dir }}
-    - run: terraform plan -chdir="infra/terraform/"
+    - run: terraform plan
 
