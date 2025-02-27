@@ -52,7 +52,7 @@ jobs:
           --arg bucket "${{ secrets.TF_BUCKET }}" \
           --arg key "${{ secrets.TF_STATE_KEY }}" \
           --arg region "${{ secrets.TF_REGION }}" \
-          '{key1: $key1, key2: $key2}')
+          '{bucket: $bucket, key: $key, region: $region}')
         echo "TF_BACKEND=$TF_BACKEND" >> $GITHUB_ENV
     - uses: hashicorp/setup-terraform@v3
     - run: terraform init -backend-config=$TF_BACKEND
