@@ -65,6 +65,10 @@ jobs:
           -backend-config="key=${{ secrets.TF_STATE_KEY }}" \
           -backend-config="region=${{ secrets.TF_REGION }}"
       working-directory: ${{ env.working-dir }}
-    - run: terraform plan -input=false
+    - run: terraform plan
       working-directory: ${{ env.working-dir }}
+      env:
+        TF_environment: "test"
+        TF_region: ${{ secrets.TF_REGION }}
+        TF_appname: "microservice-store-demo"
 
