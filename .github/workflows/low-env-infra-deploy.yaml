@@ -11,9 +11,9 @@ on:
 
 env:
   WORKING_DIR: './infra/terraform'
-  TF_environment: "test"
-  TF_region: ${{ secrets.TF_REGION }}
-  TF_appname: "microservice-store-demo"
+  TF_ENVIRONMENT: "test"
+  TF_REGION: ${{ secrets.TF_REGION }}
+  TF_APPNAME: "microservice-store-demo"
 
 jobs:
   run-trivy-scanner:
