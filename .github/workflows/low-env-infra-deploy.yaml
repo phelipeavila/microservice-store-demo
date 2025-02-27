@@ -48,12 +48,14 @@ jobs:
     steps:
     - name: Criar map com variaveis backend
       run: |
-        TF_BACKEND=$(jq -n \
-          --arg bucket "${{ secrets.TF_BUCKET }}" \
-          --arg key "${{ secrets.TF_STATE_KEY }}" \
-          --arg region "${{ secrets.TF_REGION }}" \
-          '{bucket: $bucket, key: $key, region: $region}')
-        echo "TF_BACKEND=$TF_BACKEND" >> $GITHUB_ENV
+          TF_BACKEND=$(jq -c -n \
+            --arg bucket "${{ secrets.TF_BUCKET }}" \
+            --arg key "${{ secrets.TF_STATE_KEY }}" \
+            --arg region "${{ secrets.TF_REGION }}" \
+            '{bucket: $bucket, key: $key, region: $region}')
+      
+          echo "TF_BACKEND=$TF_BACKEND" >> $GITHUB_ENV
+      shell: bash
     - uses: hashicorp/setup-terraform@v3
     - run: terraform init -backend-config=$TF_BACKEND
     - run: terraform plan
