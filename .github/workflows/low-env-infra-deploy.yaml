@@ -65,7 +65,8 @@ jobs:
           -backend-config="key=${{ secrets.TF_STATE_KEY }}" \
           -backend-config="region=${{ secrets.TF_REGION }}"
       working-directory: ${{ env.working-dir }}
-    - run: terraform plan \
+    - run: |
+        terraform plan \
           -var "environment=${{ env.TF_environment }}" \
           -var "region=${{ env.TF_region }}" \
           -var "appname=${{ env.TF_appname }}"
