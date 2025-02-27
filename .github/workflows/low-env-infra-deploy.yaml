@@ -9,6 +9,9 @@ on:
     #   - 'infra/**'
   workflow_dispatch:
 
+env:
+  working-dir: './infra/terraform'
+
 jobs:
   run-trivy-scanner:
     if: false
@@ -27,7 +30,7 @@ jobs:
         uses: aquasecurity/trivy-action@0.28.0
         with:
           scan-type: 'config'
-          scan-ref: './infra/terraform'
+          scan-ref: ${{ env.working-dir }}
           hide-progress: true
           format: 'sarif'
           output: 'trivy-terraform-results.sarif'
@@ -43,10 +46,17 @@ jobs:
 
   create-low-env-infra:
     runs-on: ubuntu-latest
+    # defaults:
+    #   run:
+        
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     steps:
+    - name: Checkout https://github.com/${{ github.repository }}@${{ github.ref }}
+      uses: actions/checkout@v4
+      with:
+        persist-credentials: false
     - name: Criar map com variaveis backend
       run: |
           pwd && ls -lah
@@ -58,6 +68,7 @@ jobs:
 
           echo "TF_BACKEND=$TF_BACKEND" >> $GITHUB_ENV
     - uses: hashicorp/setup-terraform@v3
-    - run: terraform init -backend-config=$TF_BACKEND -chdir="infra/terraform/"
+    - run: terraform init -backend-config=$TF_BACKEND
+      working-directory: ${{ env.working-dir }}
     - run: terraform plan -chdir="infra/terraform/"
 
