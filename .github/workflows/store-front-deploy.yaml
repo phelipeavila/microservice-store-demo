@@ -138,6 +138,7 @@ jobs:
           echo "ECR_URI=$REPO_URI" >> $GITHUB_ENV
 
       - name: Build, tag, and push docker image to Amazon ECR
+        working-directory: ${{ env.WORKING_DIR }}
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           REPOSITORY: ${{ env.AWS_ECR_REPO_NAME }}
@@ -155,6 +156,7 @@ jobs:
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
+        
         with:
           tag_name: v1.0.${{ github.run_number }}
           name: "Release v1.0.${{ github.run_number }}"
