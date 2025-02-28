@@ -38,7 +38,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: artfacts
-          path: './app/dist'
+          path: 'app/dist'
   unit-tests:
     needs: install-app-dependencies-and-test
     runs-on: ubuntu-latest
@@ -47,7 +47,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: artfacts
-          path: ./app/dist
+          path: ßapp/dist
       - name: package app
         run: tar -czf store-front-service.tar.gz ./app/dist
       - name: Criar Release no GitHub
