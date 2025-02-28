@@ -32,7 +32,7 @@ jobs:
         run: npm test
         working-directory: 'src/store-front'
       - name: Build the app
-        run: npm run build
+        run: npm run build && pwd
         working-directory: 'src/store-front'
       - name: Upload artfacts
         uses: actions/upload-artifact@v4
