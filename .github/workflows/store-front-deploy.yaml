@@ -32,13 +32,13 @@ jobs:
         run: npm test
         working-directory: 'src/store-front'
       - name: Build the app
-        run: npm run build && pwd
+        run: npm run build && pwd && ls -lah
         working-directory: 'src/store-front'
       - name: Upload artfacts
         uses: actions/upload-artifact@v4
         with:
           name: artfacts
-          path: 'app/dist'
+          path: 'src/store-front/dist'
   unit-tests:
     needs: install-app-dependencies-and-test
     runs-on: ubuntu-latest
