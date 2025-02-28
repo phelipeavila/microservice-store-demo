@@ -25,25 +25,26 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Cache Node Modules
-        id: cache-node-modules
-        uses: actions/cache@v3
-        with:
-          path: src/store-front/node_modules
-          key: npm-${{ runner.os }}-${{ hashFiles('src/store-front/package-lock.json') }}
-          restore-keys: npm-${{ runner.os }}-
+      # - name: Cache Node Modules
+      #   id: cache-node-modules
+      #   uses: actions/cache@v3
+      #   with:
+      #     path: src/store-front/node_modules
+      #     key: npm-${{ runner.os }}-${{ hashFiles('src/store-front/package-lock.json') }}
+      #     restore-keys: npm-${{ runner.os }}-
 
       - name: Install Dependencies (if cache is empty)
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: npm ci
         working-directory: 'src/store-front'
 
-      - name: Save Node Modules as Artifact
-        uses: actions/upload-artifact@v4
+      - name: Save Cache Node Modules (Force Save)
+        if: always()  # Garante que o cache será salvo, mesmo se passos anteriores falharem
+        uses: actions/cache/save@v3
         with:
-          name: store-front-node-modules
           path: src/store-front/node_modules
-          retention-days: 1 
+          key: npm-${{ runner.os }}-${{ hashFiles('src/store-front/package-lock.json') }}
+      
 
       - name: Run Unit Tests
         run: npm test
