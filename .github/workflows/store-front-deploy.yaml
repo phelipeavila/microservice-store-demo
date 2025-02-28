@@ -7,7 +7,6 @@ on:
       - 'pipeline'
     # paths:
     #   - 'src/store-front/**'
-
   workflow_dispatch:
 
 permissions:
@@ -15,52 +14,86 @@ permissions:
   packages: write
     
 jobs:
-  install-app-dependencies-and-test:
+  setup-and-test:
+    name: "Install Dependencies & Run Tests"
     runs-on: ubuntu-latest
     container:
       image: node:18.20.4-alpine
-      # options: --user root
     steps:
-      - name: Checkout repository
+      - name: Checkout Repository
         uses: actions/checkout@v4
         with:
           persist-credentials: false
-      - name: Install app dependencies
-        run: pwd && ls -lah&& npm install
+
+      - name: Cache Node Modules
+        uses: actions/cache@v3
+        with:
+          path: src/store-front/node_modules
+          key: npm-${{ runner.os }}-${{ hashFiles('src/store-front/package-lock.json') }}
+          restore-keys: npm-${{ runner.os }}-
+
+      - name: Install Dependencies
+        run: npm install
         working-directory: 'src/store-front'
-      - name: Unit tests
+
+      - name: Run Unit Tests
         run: npm test
         working-directory: 'src/store-front'
-      - name: Build the app
-        run: npm run build && pwd && ls -lah
+
+  build-app:
+    name: "Build Store Front Application"
+    needs: setup-and-test
+    runs-on: ubuntu-latest
+    container:
+      image: node:18.20.4-alpine
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Restore Cached Dependencies
+        uses: actions/cache@v3
+        with:
+          path: src/store-front/node_modules
+          key: npm-${{ runner.os }}-${{ hashFiles('src/store-front/package-lock.json') }}
+          restore-keys: npm-${{ runner.os }}-
+
+      - name: Build Application
+        run: npm run build
         working-directory: 'src/store-front'
-      - name: Upload artfacts
+
+      - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: artfacts
+          name: store-front-artifacts
           path: 'src/store-front/dist'
-  unit-tests:
-    needs: install-app-dependencies-and-test
+
+  package-and-release:
+    name: "Package & Create Release"
+    needs: build-app
     runs-on: ubuntu-latest
     steps:
-      - name: Download artfacts
+      - name: Download Build Artifacts
         uses: actions/download-artifact@v4
         with:
-          name: artfacts
+          name: store-front-artifacts
           path: 'app/dist'
-      - name: package app
-        run: tar -czf store-front-service.tar.gz app/dist
-      - name: Criar Release no GitHub
+
+      - name: Package Application
+        run: tar -czf store-front-service.tar.gz -C app/dist .
+
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: v1.0.${{ github.run_number }}
           name: "Release v1.0.${{ github.run_number }}"
           draft: false
           prerelease: false
-          files: |
-            store-front-service.tar.gz
+          files: store-front-service.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+
   # deploy:
 
 
