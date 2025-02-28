@@ -121,10 +121,10 @@ jobs:
 
       - name: Create ECR Repository
         id: create-ecr
+        env:
+          REPO_NAME: ${{ env.AWS_ECR_REPO_NAME }}
+          AWS_REGION: ${{ secrets.TF_AWS_REGION }}
         run: |
-          REPO_NAME="${{env.ECR_REPO_NAME}}"
-          AWS_REGION="${{env.TF_AWS_REGION}}"
-      
           # Verifica se o repositório já existe
           REPO_URI=$(aws ecr describe-repositories --repository-names "$REPO_NAME" --region "$AWS_REGION" --query 'repositories[0].repositoryUri' --output text 2>/dev/null || echo "")
       
