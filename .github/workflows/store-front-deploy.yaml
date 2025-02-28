@@ -33,12 +33,19 @@ jobs:
           restore-keys: npm-${{ runner.os }}-
 
       - name: Install Dependencies
-        run: npm install
+        run: npm ci
         working-directory: 'src/store-front'
 
       - name: Run Unit Tests
         run: npm test
         working-directory: 'src/store-front'
+
+      - name: Save Dependencies as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: store-front-node-modules
+          path: src/store-front/node_modules
+          retention-days: 1 
 
   build-app:
     name: "Build Store Front Application"
@@ -52,15 +59,14 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Restore Cached Dependencies
-        uses: actions/cache@v3
+      - name: Download Cached Dependencies
+        uses: actions/download-artifact@v4
         with:
+          name: store-front-node-modules
           path: src/store-front/node_modules
-          key: npm-${{ runner.os }}-${{ hashFiles('src/store-front/package-lock.json') }}
-          restore-keys: npm-${{ runner.os }}-
 
       - name: Build Application
-        run: npm ci && npm run build
+        run: npm run build
         working-directory: 'src/store-front'
 
       - name: Upload Build Artifacts
