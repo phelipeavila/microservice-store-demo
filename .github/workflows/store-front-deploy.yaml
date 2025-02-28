@@ -1,4 +1,4 @@
-name: package-store-front
+name: deploy-store-front
 
 on:
   push:
@@ -26,7 +26,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Install app dependencies
-        run: npm install
+        run: pwd && ls -lah&& npm install
         working-directory: './app/dist'
       - name: Unit tests
         run: npm test
