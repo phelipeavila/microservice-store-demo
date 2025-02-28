@@ -16,20 +16,20 @@ permissions:
 env:
   APP_NAME: "store-front"
   TF_APP_NAME: "microservice-store-demo"
-  WORKING_DIR: "src/store-front"
   TF_WORKING_DIR: "src/store-front/infra/terraform"
+  WORKING_DIR: "src/store-front"
   BUILD_DIR: "dist"
   ARTIFACT_NAME: "store-front-artifacts"
   PACKAGE_NAME: "store-front-service.tar.gz"
+  AWS_ECR_REPO_NAME: "microservicestoredemo/storefront"
   NODE_IMAGE: "node:18.20.4-alpine"
-  ECR_REPO_NAME: "microservicestoredemo/storefront"
 
 jobs:
   setup-and-test:
     name: "Install Dependencies & Run Tests"
     runs-on: ubuntu-latest
     container:
-      image: ${{ env.NODE_IMAGE }}
+      image: "${{ vars.NODE_IMAGE }}"
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -45,11 +45,11 @@ jobs:
         working-directory: ${{ env.WORKING_DIR }}
 
   build-app:
-    name: "Build ${{ env.APP_NAME }}"
+    name: "Build"
     needs: setup-and-test
     runs-on: ubuntu-latest
     container:
-      image: ${{ env.NODE_IMAGE }}
+      image: ${{ vars.NODE_IMAGE }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -71,7 +71,7 @@ jobs:
           path: ${{ env.WORKING_DIR }}/${{ env.BUILD_DIR }}
 
   package-and-release:
-    name: "Package & Release ${{ env.APP_NAME }}"
+    name: "Package & Release"
     needs: build-app
     runs-on: ubuntu-latest
     environment: "test"
