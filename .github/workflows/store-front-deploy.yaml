@@ -47,7 +47,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: artfacts
-          path: ßapp/dist
+          path: 'app/dist'
       - name: package app
         run: tar -czf store-front-service.tar.gz ./app/dist
       - name: Criar Release no GitHub
