@@ -47,7 +47,6 @@ jobs:
           category: terraform-analysis-tool
 
   plan-infra:
-    if: false
     name: "Provision Low Environment Infrastructure"
     runs-on: ubuntu-latest
     env:
