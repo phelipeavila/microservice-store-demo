@@ -13,12 +13,23 @@ permissions:
   contents: read
   packages: write
     
+env:
+  APP_NAME: "store-front"
+  TF_APP_NAME: "microservice-store-demo"
+  WORKING_DIR: "src/store-front"
+  TF_WORKING_DIR: "src/store-front/infra/terraform"
+  BUILD_DIR: "dist"
+  ARTIFACT_NAME: "store-front-artifacts"
+  PACKAGE_NAME: "store-front-service.tar.gz"
+  NODE_IMAGE: "node:18.20.4-alpine"
+  ECR_REPO_NAME: "microservicestoredemo/storefront"
+
 jobs:
   setup-and-test:
     name: "Install Dependencies & Run Tests"
     runs-on: ubuntu-latest
     container:
-      image: node:18.20.4-alpine
+      image: ${{ env.NODE_IMAGE }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -27,18 +38,18 @@ jobs:
 
       - name: Install Dependencies
         run: npm ci
-        working-directory: 'src/store-front'
+        working-directory: ${{ env.WORKING_DIR }}
 
       - name: Run Unit Tests
         run: npm test
-        working-directory: 'src/store-front'
+        working-directory: ${{ env.WORKING_DIR }}
 
   build-app:
-    name: "Build Store Front Application"
+    name: "Build ${{ env.APP_NAME }}"
     needs: setup-and-test
     runs-on: ubuntu-latest
     container:
-      image: node:18.20.4-alpine
+      image: ${{ env.NODE_IMAGE }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -47,31 +58,98 @@ jobs:
 
       - name: Install Dependencies
         run: npm ci
-        working-directory: 'src/store-front'
+        working-directory: ${{ env.WORKING_DIR }}
 
       - name: Build Application
         run: npm run build
-        working-directory: 'src/store-front'
+        working-directory: ${{ env.WORKING_DIR }}
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: store-front-artifacts
-          path: 'src/store-front/dist'
+          name: ${{ env.ARTIFACT_NAME }}
+          path: ${{ env.WORKING_DIR }}/${{ env.BUILD_DIR }}
 
   package-and-release:
-    name: "Package & Create Release"
+    name: "Package & Release ${{ env.APP_NAME }}"
     needs: build-app
     runs-on: ubuntu-latest
+    environment: "test"
     steps:
       - name: Download Build Artifacts
         uses: actions/download-artifact@v4
         with:
-          name: store-front-artifacts
-          path: 'app/dist'
+          name: ${{ env.ARTIFACT_NAME }}
+          path: app/${{ env.BUILD_DIR }}
 
       - name: Package Application
-        run: tar -czf store-front-service.tar.gz -C app/dist .
+        run: tar -czf ${{ env.PACKAGE_NAME }} -C app/${{ env.BUILD_DIR }} .
+
+      - name: Create GitHub Release
+        if: false
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v1.0.${{ github.run_number }}
+          name: "Release v1.0.${{ github.run_number }}"
+          draft: false
+          prerelease: false
+          files: ${{ env.PACKAGE_NAME }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+
+  build-container:
+    name: "Build & Push Container"
+    needs: build-app
+    runs-on: ubuntu-latest
+    environment: "test"
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.TF_AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Create ECR Repository
+        id: create-ecr
+        run: |
+          REPO_NAME="${{env.ECR_REPO_NAME}}"
+          AWS_REGION="${{env.TF_AWS_REGION}}"
+      
+          # Verifica se o repositório já existe
+          REPO_URI=$(aws ecr describe-repositories --repository-names "$REPO_NAME" --region "$AWS_REGION" --query 'repositories[0].repositoryUri' --output text 2>/dev/null || echo "")
+      
+          if [ -z "$REPO_URI" ]; then
+            # Cria o repositório caso não exista
+            REPO_URI=$(aws ecr create-repository --repository-name "$REPO_NAME" --region "$AWS_REGION" --query 'repository.repositoryUri' --output text)
+            echo "ECR repository created: $REPO_URI"
+          else
+            echo "ECR repository already exists: $REPO_URI"
+          fi
+
+      - name: Build, tag, and push docker image to Amazon ECR
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          REPOSITORY: ${{env.ECR_REPO_NAME}}
+          IMAGE_TAG1: ${{ github.sha }}
+          IMAGE_TAG2: latest
+        run: |
+          docker buildx build --push \
+          --tag $REGISTRY/$REPOSITORY:$IMAGE_TAG1 \
+          --tag $REGISTRY/$REPOSITORY:$IMAGE_TAG2 \
+          -f Dockerfile .
+
+      - name: Package Application
+        run: tar -czf ${{ env.PACKAGE_NAME }} -C app/${{ env.BUILD_DIR }} .
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
@@ -80,10 +158,40 @@ jobs:
           name: "Release v1.0.${{ github.run_number }}"
           draft: false
           prerelease: false
-          files: store-front-service.tar.gz
+          files: ${{ env.PACKAGE_NAME }}
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+          
+  # plan-infra:
+  #   name: "Provision Low Environment Infrastructure"
+  #   runs-on: ubuntu-latest
+  #   needs: package-and-release
+  #   env:
+  #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  #   outputs:
+  #     tf_exitcode: ${{ steps.plan.outputs.exitcode }}
+  #   steps:
+  #   - name: Checkout https://github.com/${{ github.repository }}@${{ github.ref }}
+  #     uses: actions/checkout@v4
+  #     with:
+  #       persist-credentials: false
+  #   - uses: hashicorp/setup-terraform@v3
 
-  # deploy:
+  #   - name: Terraform Init
+  #     run: |
+  #       terraform init \
+  #         -backend-config="bucket=${{ secrets.TF_BUCKET }}" \
+  #         -backend-config="key=${{ secrets.TF_STATE_KEY }}/${{ env.APPNAME }}//terraform.tfstate" \
+  #         -backend-config="region=${{ env.TF_REGION }}"
+  #     working-directory: ${{ env.TF_WORKING_DIR }}
 
+  #   - name: Generate Terraform Plan
+  #     id: plan
+  #     run: |
+  #       terraform plan -detailed-exitcode \
+  #         -var "environment=${{ env.TF_ENVIRONMENT }}" \
+  #         -var "region=${{ env.TF_REGION }}" \
+  #         -var "appname=${{ env.APPNAME }}"
+  #     working-directory: ${{ env.TF_WORKING_DIR }}
 
