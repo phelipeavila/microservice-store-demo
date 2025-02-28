@@ -135,11 +135,13 @@ jobs:
           else
             echo "ECR repository already exists: $REPO_URI"
           fi
+          echo "ECR_URI=$REPO_URI" >> $GITHUB_ENV
 
       - name: Build, tag, and push docker image to Amazon ECR
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          REPOSITORY: ${{env.ECR_REPO_NAME}}
+          REPOSITORY: ${{ env.AWS_ECR_REPO_NAME }}
+          ECR_URI: ${{ steps.create-ecr.outputs.ECR_URI }}
           IMAGE_TAG1: ${{ github.sha }}
           IMAGE_TAG2: latest
         run: |
