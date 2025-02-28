@@ -60,7 +60,7 @@ jobs:
           restore-keys: npm-${{ runner.os }}-
 
       - name: Build Application
-        run: npm run build
+        run: npm ci && npm run build
         working-directory: 'src/store-front'
 
       - name: Upload Build Artifacts
