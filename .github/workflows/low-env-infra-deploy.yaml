@@ -37,8 +37,8 @@ jobs:
           hide-progress: true
           format: 'sarif'
           output: 'trivy-terraform-results.sarif'
-          ignore-unfixed: true
-          severity: 'CRITICAL,HIGH'
+          # ignore-unfixed: true
+          # severity: 'CRITICAL,HIGH'
 
       - name: Run Trivy vulnerability scanner in IaC mode for Terraform
         uses: aquasecurity/trivy-action@0.28.0
@@ -48,8 +48,8 @@ jobs:
           hide-progress: false
           format: 'table'
           # output: 'trivy-terraform-results.sarif'
-          ignore-unfixed: true
-          severity: 'CRITICAL,HIGH'
+          # ignore-unfixed: true
+          # severity: 'CRITICAL,HIGH'
 
       - name: Upload Trivy scan results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v3
