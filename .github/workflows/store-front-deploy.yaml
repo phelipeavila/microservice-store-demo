@@ -49,7 +49,7 @@ jobs:
           name: artfacts
           path: 'app/dist'
       - name: package app
-        run: tar -czf store-front-service.tar.gz ./app/dist
+        run: tar -czf store-front-service.tar.gz app/dist
       - name: Criar Release no GitHub
         uses: softprops/action-gh-release@v1
         with:
