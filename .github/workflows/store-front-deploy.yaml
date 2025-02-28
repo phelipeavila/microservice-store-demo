@@ -25,7 +25,16 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Install Dependencies
+      - name: Cache Node Modules
+        id: cache-node-modules
+        uses: actions/cache@v3
+        with:
+          path: src/store-front/node_modules
+          key: npm-${{ runner.os }}-${{ hashFiles('src/store-front/package-lock.json') }}
+          restore-keys: npm-${{ runner.os }}-
+
+      - name: Install Dependencies (if cache is empty)
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: npm ci
         working-directory: 'src/store-front'
 
@@ -52,11 +61,16 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Download Cached Node Modules
-        uses: actions/download-artifact@v4
+      - name: Restore Cached Node Modules
+        uses: actions/cache@v3
         with:
-          name: store-front-node-modules
           path: src/store-front/node_modules
+          key: npm-${{ runner.os }}-${{ hashFiles('src/store-front/package-lock.json') }}
+          restore-keys: npm-${{ runner.os }}-
+
+      - name: Verify Installed Dependencies
+        run: ls -lah src/store-front/node_modules/.bin && npm list --depth=0
+        working-directory: 'src/store-front'
 
       - name: Build Application
         run: npm run build
