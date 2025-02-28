@@ -4,9 +4,8 @@ on:
   push:
     branches:
       - 'main'
-      - 'pipeline'
-    # paths:
-    #   - 'infra/**'
+    paths:
+      - 'infra/**'
   workflow_dispatch:
 
 env:
