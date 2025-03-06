@@ -5,8 +5,8 @@ on:
     branches:
       - 'main'
       - 'pipeline'
-    # paths:
-    #   - 'src/store-front/**'
+    paths:
+      - 'src/store-front/**'
   workflow_dispatch:
 
 permissions:
@@ -151,20 +151,6 @@ jobs:
           --tag $REGISTRY/$REPOSITORY:$IMAGE_TAG2 \
           -f Dockerfile .
 
-      - name: Package Application
-        run: tar -czf ${{ env.PACKAGE_NAME }} -C app/${{ env.BUILD_DIR }} .
-
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
-        
-        with:
-          tag_name: v1.0.${{ github.run_number }}
-          name: "Release v1.0.${{ github.run_number }}"
-          draft: false
-          prerelease: false
-          files: ${{ env.PACKAGE_NAME }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
           
   # plan-infra:
   #   name: "Provision Low Environment Infrastructure"
