@@ -18,7 +18,7 @@ env:
   TF_ROLE_NAME: ${{ secrets.TF_ROLE_NAME }}
   TF_DYNAMODB_TABLE: ${{ secrets.TF_DYNAMODB_TABLE }}
   TF_BUCKET: ${{ secrets.TF_BUCKET }}
-  TF_STATE_KEY: ${{ secrets.TF_STATE_KEY }} 
+  TF_STATE_KEY: "state"
 permissions:
   id-token: write
   contents: read
