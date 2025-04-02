@@ -16,7 +16,9 @@ env:
   TF_APPNAME: "microservice-store-demo"
   TF_ACCOUNT_ID: ${{ secrets.TF_ACCOUNT_ID }}
   TF_ROLE_NAME: ${{ secrets.TF_ROLE_NAME }}
-
+  TF_DYNAMODB_TABLE: ${{ secrets.TF_DYNAMODB_TABLE }}
+  TF_BUCKET: ${{ secrets.TF_BUCKET }}
+  TF_STATE_KEY: ${{ secrets.TF_STATE_KEY }} 
 permissions:
   id-token: write
   contents: read
@@ -76,9 +78,11 @@ jobs:
     - name: Terraform Init
       run: |
         terraform init \
-          -backend-config="bucket=${{ secrets.TF_BUCKET }}" \
-          -backend-config="key=${{ secrets.TF_STATE_KEY }}/terraform.tfstate" \
-          -backend-config="region=${{ env.TF_REGION }}"
+          -backend-config="bucket=${{ env.TF_BUCKET }}" \
+          -backend-config="key=${{ env.TF_STATE_KEY }}/terraform.tfstate" \
+          -backend-config="region=${{ env.TF_REGION }}" \
+          -backend-config="encrypt=true" \
+          -backend-config="dynamodb_table=${{ env.TF_DYNAMODB_TABLE }}"
       working-directory: ${{ env.WORKING_DIR }}
 
     - name: Generate Terraform Plan
@@ -96,9 +100,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: plan-infra
     if: needs.plan-infra.outputs.tf_exitcode == '2'  # applies only if there are any changes
-    env:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    # env:
+    #   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+    #   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -111,9 +115,11 @@ jobs:
       - name: Terraform Init
         run: |
           terraform init \
-            -backend-config="bucket=${{ secrets.TF_BUCKET }}" \
-            -backend-config="key=${{ secrets.TF_STATE_KEY }}" \
-            -backend-config="region=${{ env.TF_REGION }}"
+            -backend-config="bucket=${{ env.TF_BUCKET }}" \
+            -backend-config="key=${{ env.TF_STATE_KEY }}" \
+            -backend-config="region=${{ env.TF_REGION }}" \
+            -backend-config="encrypt=true" \
+            -backend-config="dynamodb_table=${{ env.TF_DYNAMODB_TABLE }}" 
         working-directory: ${{ env.WORKING_DIR }}
 
       - name: Apply Terraform Changes
