@@ -1,9 +1,10 @@
 name: low-env-pipeline
 
 on:
-  # push:
-  #   branches:
-  #     - 'main'
+  push:
+    branches:
+      - 'main'
+      - 'pipeline'
   #   paths:
   #     - 'infra/**'
   workflow_dispatch:
