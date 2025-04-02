@@ -14,7 +14,7 @@ env:
   TF_ENVIRONMENT: "test"
   TF_REGION: ${{ secrets.TF_REGION }}
   TF_APPNAME: "microservice-store-demo"
-  TF_ACCOUNT_ID: "590723747612"
+  TF_ACCOUNT_ID: ${{ secrets.TF_ACCOUNT_ID }}
   TF_ROLE_NAME: "github-actions-deploy-role"
   TF_DYNAMODB_TABLE: ${{ secrets.TF_DYNAMODB_TABLE }}
   TF_BUCKET: ${{ secrets.TF_BUCKET }}
