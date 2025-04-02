@@ -15,6 +15,7 @@ env:
   TF_REGION: ${{ secrets.TF_REGION }}
   TF_APPNAME: "microservice-store-demo"
   TF_ACCOUNT_ID: ${{ secrets.TF_ACCOUNT_ID }}
+  TF_ROLE_NAME: ${{ secrets.TF_ROLE_NAME }}
 
 permissions:
   id-token: write
@@ -68,7 +69,7 @@ jobs:
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
       with:
-        role-to-assume: arn:aws:iam::${{ env.TF_ACCOUNT_ID }}:role/GitHubActionsOIDCRole
+        role-to-assume: arn:aws:iam::${{ env.TF_ACCOUNT_ID }}:role/${{ env.TF_ROLE_NAME }}
         aws-region: ${{ env.TF_REGION }}
 
     - uses: hashicorp/setup-terraform@v3
