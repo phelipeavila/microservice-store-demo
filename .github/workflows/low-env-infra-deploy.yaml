@@ -15,10 +15,10 @@ env:
   TF_REGION: ${{ secrets.TF_REGION }}
   TF_APPNAME: "microservice-store-demo"
   TF_ACCOUNT_ID: ${{ secrets.TF_ACCOUNT_ID }}
-  TF_ROLE_NAME: "github-actions-deploy-role"
+  TF_ROLE_NAME: ${{ secrets.TF_ROLE_NAME }}
   TF_DYNAMODB_TABLE: ${{ secrets.TF_DYNAMODB_TABLE }}
   TF_BUCKET: ${{ secrets.TF_BUCKET }}
-  TF_STATE_KEY: "state"
+  TF_STATE_KEY: "state/microservice-store-demo/low-env/terraform.tfstate"
 permissions:
   id-token: write
   contents: read
@@ -76,7 +76,7 @@ jobs:
       run: |
         terraform init \
           -backend-config="bucket=${{ env.TF_BUCKET }}" \
-          -backend-config="key=${{ env.TF_STATE_KEY }}/terraform.tfstate" \
+          -backend-config="key=${{ env.TF_STATE_KEY }}" \
           -backend-config="region=${{ env.TF_REGION }}" \
           -backend-config="encrypt=true" \
           -backend-config="dynamodb_table=${{ env.TF_DYNAMODB_TABLE }}"
