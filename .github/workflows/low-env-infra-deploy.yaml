@@ -88,8 +88,15 @@ jobs:
         terraform plan -detailed-exitcode \
           -var "environment=${{ env.TF_ENVIRONMENT }}" \
           -var "region=${{ env.TF_REGION }}" \
-          -var "appname=${{ env.TF_APPNAME }}"
+          -var "appname=${{ env.TF_APPNAME }}" \
+          -out=tfplan
       working-directory: ${{ env.WORKING_DIR }}
+
+    - name: Upload Terraform Plan
+      uses: actions/upload-artifact@v4
+      with:
+        name: tfplan
+        path: ${{ env.WORKING_DIR }}/tfplan
 
   apply-infra:
     environment: test
@@ -122,10 +129,13 @@ jobs:
             -backend-config="dynamodb_table=${{ env.TF_DYNAMODB_TABLE }}" 
         working-directory: ${{ env.WORKING_DIR }}
 
+      - name: Download Terraform Plan
+        uses: actions/download-artifact@v4
+        with:
+          name: tfplan
+          path: ${{ env.WORKING_DIR }}
+
       - name: Apply Terraform Changes
         run: |
-          terraform apply -auto-approve \
-            -var "environment=${{ env.TF_ENVIRONMENT }}" \
-            -var "region=${{ env.TF_REGION }}" \
-            -var "appname=${{ env.TF_APPNAME }}"
+          terraform apply tfplan
         working-directory: ${{ env.WORKING_DIR }}
