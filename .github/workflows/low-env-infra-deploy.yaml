@@ -98,6 +98,7 @@ jobs:
       with:
         name: tfplan
         path: ${{ env.WORKING_DIR }}/tfplan
+        retention-days: 1
 
   apply-infra:
     environment: test
