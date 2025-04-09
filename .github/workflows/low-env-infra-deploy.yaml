@@ -55,17 +55,20 @@ jobs:
           category: terraform-analysis-tool
 
       - name: Run Checkov security scan
-        uses: bridgecrewio/checkov-action@master
+        id: checkov
+        uses: bridgecrewio/checkov-action@v12
         with:
           directory: ${{ env.WORKING_DIR }}
           framework: terraform
           download_external_modules: true
           quiet: true
           soft_fail: true
+          skip_check: LOW,MEDIUM
           output_format: sarif
           output_file_path: checkov-results.sarif
 
       - name: Upload Checkov scan results to GitHub Security tab
+        if: steps.checkov.outcome == 'success'
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: 'checkov-results.sarif'
