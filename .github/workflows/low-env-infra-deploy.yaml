@@ -59,6 +59,7 @@ jobs:
         with:
           directory: ${{ env.WORKING_DIR }}
           framework: terraform
+          download_external_modules: true
           quiet: true
           soft_fail: true
           output_format: sarif
