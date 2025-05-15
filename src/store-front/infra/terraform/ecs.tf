@@ -23,7 +23,7 @@ module "ecs_service" {
     }
   }
 
-  depends_on = [module.lb_target, aws_ecs_cluster.this]
+  depends_on = [module.lb_target, data.aws_ecs_cluster.this]
 }
 
 module "load_balancer" {
@@ -65,19 +65,19 @@ module "lb_target" {
 
 }
 
-module "task_definition" {
-  source   = "./task_definition"
-  task_config = {
-    family                   = each.value.family
-    execution_role_arn       = each.value.execution_role_arn
-    task_role_arn            = each.value.task_role_arn
-    cpu                      = each.value.cpu
-    memory                   = each.value.memory
-    network_mode             = each.value.network_mode
-    requires_compatibilities = each.value.requires_compatibilities
-    container_name           = each.value.container_name
-    image_uri                = each.value.image_uri
-    health_check_cmd         = each.value.health_check_cmd
-    portMappings             = each.value.portMappings
-  }
-}
+# module "task_definition" {
+#   source   = "./task_definition"
+#   task_config = {
+#     family                   = each.value.family
+#     execution_role_arn       = each.value.execution_role_arn
+#     task_role_arn            = each.value.task_role_arn
+#     cpu                      = each.value.cpu
+#     memory                   = each.value.memory
+#     network_mode             = each.value.network_mode
+#     requires_compatibilities = each.value.requires_compatibilities
+#     container_name           = each.value.container_name
+#     image_uri                = each.value.image_uri
+#     health_check_cmd         = each.value.health_check_cmd
+#     portMappings             = each.value.portMappings
+#   }
+# }

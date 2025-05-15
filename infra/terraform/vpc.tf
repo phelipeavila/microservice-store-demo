@@ -17,4 +17,8 @@ module "vpc" {
     Environment = var.environment
     Application = var.appname
   }
+  
+  public_subnet_tags = {
+    "Public" = "true"
+  }
 }
