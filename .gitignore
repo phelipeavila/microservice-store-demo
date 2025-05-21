@@ -149,6 +149,7 @@ custom-values.yaml
 
 # Local .terraform directories
 **/.terraform/*
+**/terraform/.external_modules/*
 
 # .tfstate files
 *.tfstate
