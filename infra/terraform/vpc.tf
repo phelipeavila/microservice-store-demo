@@ -17,8 +17,6 @@ module "vpc" {
     Environment = var.environment
     Application = var.appname
     Owner       = var.owner
-    yor_name    = "vpc"
-    yor_trace   = "4c23bac4-efbd-4342-a89c-e0394e8d0afe"
   }
 
   public_subnet_tags = {

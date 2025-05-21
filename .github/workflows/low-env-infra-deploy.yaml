@@ -60,11 +60,6 @@ jobs:
         with:
           directory: ${{ env.WORKING_DIR }}
 
-      # - name: Add criticality tag to resources
-      #   uses: bridgecrewio/yor-action@main
-      #   with:
-      #     directory: ${{ env.WORKING_DIR }}
-      #     tags: '{"criticality": "high"}'
 
   security-scan:
     name: "Security Scan: IaC Analysis"
