@@ -34,6 +34,25 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ env.TF_ACCOUNT_ID }}:role/${{ env.TF_ROLE_NAME }}
+          aws-region: ${{ env.TF_REGION }}
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init
+        run: |
+          terraform init \
+            -backend-config="bucket=${{ env.TF_BUCKET }}" \
+            -backend-config="key=${{ env.TF_STATE_KEY }}" \
+            -backend-config="region=${{ env.TF_REGION }}" \
+            -backend-config="encrypt=true" \
+            -backend-config="dynamodb_table=${{ env.TF_DYNAMODB_TABLE }}"
+        working-directory: ${{ env.WORKING_DIR }}
+
       - name: Run YOR tag validation
         uses: bridgecrewio/yor-action@main
         with:
