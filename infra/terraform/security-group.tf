@@ -17,6 +17,10 @@ module "sg_database" {
     #   # source_security_group_id = aws_security_group.sg_control_node.id
     # },
   ]
+  tags = {
+    yor_name  = "sg_database"
+    yor_trace = "4a6f4c4d-3913-45ea-ae4a-dc65bd468355"
+  }
 }
 
 module "sg_backend" {
@@ -43,6 +47,10 @@ module "sg_backend" {
       cidr_blocks = "0.0.0.0/0"
     },
   ]
+  tags = {
+    yor_name  = "sg_backend"
+    yor_trace = "d962ad9e-6a20-408e-8482-849ee4e7e1cf"
+  }
 }
 
 module "sg_frontend" {
@@ -69,5 +77,9 @@ module "sg_frontend" {
       cidr_blocks = "0.0.0.0/0"
     },
   ]
+  tags = {
+    yor_name  = "sg_frontend"
+    yor_trace = "e633b84c-0d26-43a2-99b9-5da602782f1b"
+  }
 }
 

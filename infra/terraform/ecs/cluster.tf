@@ -9,6 +9,10 @@ resource "aws_ecs_cluster" "this" {
       logging = "DEFAULT"
     }
   }
+  tags = {
+    yor_name  = "this"
+    yor_trace = "a7d9c0f8-0fcf-4108-815a-8fe3f61d9317"
+  }
 }
 
 resource "aws_ecs_cluster_capacity_providers" "this" {
