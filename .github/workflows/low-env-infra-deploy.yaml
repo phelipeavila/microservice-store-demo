@@ -35,7 +35,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          persist-credentials: false
+          fetch-depth: 0
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -58,14 +58,15 @@ jobs:
         uses: bridgecrewio/yor-action@main
         with:
           directory: ${{ env.WORKING_DIR }}
+          commit_changes: false
           tags: '{"owner": "${{ env.TF_OWNER }}"}'
   
 
-      - name: Add criticality tag to resources
-        uses: bridgecrewio/yor-action@main
-        with:
-          directory: ${{ env.WORKING_DIR }}
-          tags: '{"criticality": "high"}'
+      # - name: Add criticality tag to resources
+      #   uses: bridgecrewio/yor-action@main
+      #   with:
+      #     directory: ${{ env.WORKING_DIR }}
+      #     tags: '{"criticality": "high"}'
 
   security-scan:
     name: "Security Scan: IaC Analysis"
