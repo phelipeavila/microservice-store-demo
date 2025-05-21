@@ -16,6 +16,7 @@ module "vpc" {
     Terraform   = "true"
     Environment = var.environment
     Application = var.appname
+    Owner       = var.owner
   }
   
   public_subnet_tags = {

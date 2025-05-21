@@ -8,6 +8,11 @@ variable "appname" {
   type        = string
 }
 
+variable "owner" {
+  description = "Owner of the application, used for resource tagging"
+  type        = string
+}
+
 variable "environment" {
   description = "Environment name (e.g., dev, staging, prod) used for resource tagging"
   type        = string
