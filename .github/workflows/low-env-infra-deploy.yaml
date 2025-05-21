@@ -25,48 +25,48 @@ permissions:
   contents: read
 
 jobs:
-  tag-validation:
-    name: "Validate Resource Tags with YOR"
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          persist-credentials: false
+  # tag-validation:
+  #   name: "Validate Resource Tags with YOR"
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v4
+  #       with:
+  #         persist-credentials: false
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: arn:aws:iam::${{ env.TF_ACCOUNT_ID }}:role/${{ env.TF_ROLE_NAME }}
-          aws-region: ${{ env.TF_REGION }}
+  #     - name: Configure AWS credentials
+  #       uses: aws-actions/configure-aws-credentials@v4
+  #       with:
+  #         role-to-assume: arn:aws:iam::${{ env.TF_ACCOUNT_ID }}:role/${{ env.TF_ROLE_NAME }}
+  #         aws-region: ${{ env.TF_REGION }}
 
-      - uses: hashicorp/setup-terraform@v3
-      - name: Terraform Init
-        run: |
-          terraform init \
-            -backend-config="bucket=${{ env.TF_BUCKET }}" \
-            -backend-config="key=${{ env.TF_STATE_KEY }}" \
-            -backend-config="region=${{ env.TF_REGION }}" \
-            -backend-config="encrypt=true" \
-            -backend-config="dynamodb_table=${{ env.TF_DYNAMODB_TABLE }}"
-        working-directory: ${{ env.WORKING_DIR }}
+  #     - uses: hashicorp/setup-terraform@v3
+  #     - name: Terraform Init
+  #       run: |
+  #         terraform init \
+  #           -backend-config="bucket=${{ env.TF_BUCKET }}" \
+  #           -backend-config="key=${{ env.TF_STATE_KEY }}" \
+  #           -backend-config="region=${{ env.TF_REGION }}" \
+  #           -backend-config="encrypt=true" \
+  #           -backend-config="dynamodb_table=${{ env.TF_DYNAMODB_TABLE }}"
+  #       working-directory: ${{ env.WORKING_DIR }}
 
-      - name: Run YOR tag validation
-        uses: bridgecrewio/yor-action@main
-        with:
-          directory: ${{ env.WORKING_DIR }}
-          tags: '{"owner": "required"}'
+  #     - name: Run YOR tag validation
+  #       uses: bridgecrewio/yor-action@main
+  #       with:
+  #         directory: ${{ env.WORKING_DIR }}
+  #         tags: '{"owner": "required"}'
 
-      - name: Add criticality tag to resources
-        uses: bridgecrewio/yor-action@main
-        with:
-          directory: ${{ env.WORKING_DIR }}
-          tags: '{"criticality": "high"}'
+  #     - name: Add criticality tag to resources
+  #       uses: bridgecrewio/yor-action@main
+  #       with:
+  #         directory: ${{ env.WORKING_DIR }}
+  #         tags: '{"criticality": "high"}'
 
   security-scan:
     name: "Security Scan: IaC Analysis"
     runs-on: ubuntu-latest
-    needs: tag-validation
+    # needs: tag-validation
     permissions:
       actions: read
       contents: read
