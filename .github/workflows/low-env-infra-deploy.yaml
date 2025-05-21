@@ -28,6 +28,9 @@ jobs:
   tag-validation:
     name: "Validate Resource Tags with YOR"
     runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -56,6 +59,7 @@ jobs:
         with:
           directory: ${{ env.WORKING_DIR }}
           tags: '{"owner": "${{ env.TF_OWNER }}"}'
+  
 
       - name: Add criticality tag to resources
         uses: bridgecrewio/yor-action@main
