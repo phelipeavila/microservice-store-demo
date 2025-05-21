@@ -18,7 +18,7 @@ module "vpc" {
     Application = var.appname
     Owner       = var.owner
   }
-  
+
   public_subnet_tags = {
     "Public" = "true"
   }

@@ -1,12 +1,12 @@
 module "sg_database" {
-  source = "terraform-aws-modules/security-group/aws"
+  source  = "terraform-aws-modules/security-group/aws"
   version = "5.1.0"
 
   name        = "database-node"
   description = "Security group for database node"
   vpc_id      = module.vpc.vpc_id
 
-  egress_rules = [ "all-all" ]
+  egress_rules = ["all-all"]
   ingress_with_source_security_group_id = [
     {
       rule                     = "postgresql-tcp"
@@ -20,14 +20,14 @@ module "sg_database" {
 }
 
 module "sg_backend" {
-  source = "terraform-aws-modules/security-group/aws"
+  source  = "terraform-aws-modules/security-group/aws"
   version = "5.1.0"
 
   name        = "backend-node"
   description = "Security group for backend node"
   vpc_id      = module.vpc.vpc_id
 
-  egress_rules = [ "all-all" ]
+  egress_rules = ["all-all"]
   # ingress_with_source_security_group_id = [
   #   {
   #     # rule                     = "ssh-tcp"
@@ -46,14 +46,14 @@ module "sg_backend" {
 }
 
 module "sg_frontend" {
-  source = "terraform-aws-modules/security-group/aws"
+  source  = "terraform-aws-modules/security-group/aws"
   version = "5.1.0"
 
   name        = "frontend-node"
   description = "Security group for frontend nodes"
   vpc_id      = module.vpc.vpc_id
 
-  egress_rules = [ "all-all" ]
+  egress_rules = ["all-all"]
   # ingress_with_source_security_group_id = [
   #   {
   #     # rule                     = "ssh-tcp"
