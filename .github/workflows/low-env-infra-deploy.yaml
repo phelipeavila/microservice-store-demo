@@ -55,7 +55,7 @@ jobs:
         uses: bridgecrewio/yor-action@main
         with:
           directory: ${{ env.WORKING_DIR }}
-          tags: '{"owner": "required"}'
+          tags: '{"owner": "${{ env.TF_OWNER }}"}'
 
       - name: Add criticality tag to resources
         uses: bridgecrewio/yor-action@main
